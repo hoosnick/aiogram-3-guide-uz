@@ -56,7 +56,7 @@ async def any_message(message: types.Message):
     await message.answer("Hello, *world*\!", parse_mode="MarkdownV2")
 ```
 
-![Hello world с разным форматированием](images/messages/l02_1.png)
+![Hello world с разным форматированием](../images/messages/l02_1.png)
 
 Если в боте повсеместно используется определённое форматирование, то каждый раз указывать аргумент `parse_mode` довольно 
 накладно. К счастью, в aiogram можно передать необходимый тип прямо в объект **Bot**, а если в каком-то конкретном случае 
@@ -71,7 +71,7 @@ await message.answer("Сообщение с <u>HTML-разметкой</u>")
 await message.answer("Сообщение без <s>какой-либо разметки</s>", parse_mode=None)
 ```
 
-![Настройка типа разметки по умолчанию](images/messages/l02_2.png)
+![Настройка типа разметки по умолчанию](../images/messages/l02_2.png)
 
 ### Экранирование ввода {: id="input-escaping" }
 
@@ -100,7 +100,7 @@ async def cmd_name(message: types.Message, command: CommandObject):
 
 Проверим:
 
-![Работа команды /name](images/messages/cmd_name_before.png)
+![Работа команды /name](../images/messages/cmd_name_before.png)
 
 И, вроде бы, всё хорошо, но тут приходит хитрый юзер и пишет `/name <славик777>`. В этом случае 
 бот не ответит, а в консоли появится ошибка:  
@@ -119,7 +119,7 @@ from aiogram import html
 await message.answer(f"Привет, {html.bold(html.quote(command.args))}", parse_mode="HTML")
 ```
 
-![Работа команды /name](images/messages/cmd_name_after.png)
+![Работа команды /name](../images/messages/cmd_name_after.png)
 
 
 !!! info ""
@@ -145,7 +145,7 @@ async def echo_with_time(message: types.Message):
     await message.answer(f"{message.text}\n\n{added_text}", parse_mode="HTML")
 ```
 
-![Добавленный текст (неудачная попытка)](images/messages/keep_formatting_bad.png)
+![Добавленный текст (неудачная попытка)](../images/messages/keep_formatting_bad.png)
 
 Мда, что-то пошло не так, почему сбилось форматирование исходного сообщения? 
 Это происходит из-за того, что `message.text` возвращает просто текст, без каких-либо оформлений. 
@@ -153,7 +153,7 @@ async def echo_with_time(message: types.Message):
 `message.html_text` или `message.md_text`. Сейчас нам нужен первый вариант. Заменяем в примере 
 выше `message.text` на `message.html_text` и получаем корректный результат:
 
-![Добавленный текст (успех)](images/messages/keep_formatting_good.png)
+![Добавленный текст (успех)](../images/messages/keep_formatting_good.png)
 
 ### Работа с entities {: id="message-entities" }
 
@@ -194,7 +194,7 @@ async def extract_data(message: types.Message):
     )
 ```
 
-![Парсинг entities](images/messages/parse_entities.png)
+![Парсинг entities](../images/messages/parse_entities.png)
 
 ## Медиафайлы {: id="media" }
 
@@ -323,7 +323,7 @@ async def download_sticker(message: types.Message, bot: Bot):
 Сообщения в Telegram делятся на текстовые, медиафайлы и служебные (они же — сервисные). 
 Настало время поговорить о последних.
 
-![Сервисные сообщения](images/messages/service_messages.png)
+![Сервисные сообщения](../images/messages/service_messages.png)
 
 Несмотря на то, что они выглядят необычно и взаимодействие с ними ограничено, это всё ещё 
 сообщения, у которых есть свои айдишники и даже владелец. Стоит отметить, что спектр применения 
@@ -343,7 +343,7 @@ async def somebody_added(message: types.Message):
         await message.reply(f"Привет, {user.full_name}")
 ```
 
-![Добавлены несколько юзеров](images/messages/multiple_add.png)
+![Добавлены несколько юзеров](../images/messages/multiple_add.png)
 
 Важно помнить, что `message.new_chat_members` является списком, потому что один пользователь может 
 добавить сразу нескольких участников. Также не надо путать поля `message.from_user` и 
@@ -389,7 +389,7 @@ async def cmd_hidden_link(message: types.Message):
     )
 ```
 
-![Изображение со скрытой ссылкой](images/messages/hidden_link.png)
+![Изображение со скрытой ссылкой](../images/messages/hidden_link.png)
 
 На этом всё. До следующих глав!  
 <s><small>Ставьте лайки, подписывайтесь, прожимайте колокольчик</small></s>
