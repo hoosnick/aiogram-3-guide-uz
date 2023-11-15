@@ -6,7 +6,7 @@ description: Знакомство с aiogram
 # Знакомство с aiogram
 
 !!! info ""
-    Используемая версия aiogram: 3.0 RC 1
+    Используемая версия aiogram: 3.1.1
 
 !!! warning "Некоторые детали сознательно упрощены!"
     Автор этой книги убеждён, что помимо теории должна быть и практика. Чтобы максимально упростить повторение 
@@ -68,8 +68,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```plain
 [groosha@main 01_quickstart]$ python3.9 -m venv venv
-[groosha@main 01_quickstart]$ echo "aiogram==3.0.0b7" > requirements.txt
-[groosha@main 01_quickstart]$ echo "python-dotenv==0.21.1" >> requirements.txt
+[groosha@main 01_quickstart]$ echo "aiogram<4.0" > requirements.txt
+[groosha@main 01_quickstart]$ echo "python-dotenv==1.0.0" >> requirements.txt
 [groosha@main 01_quickstart]$ source venv/bin/activate
 (venv) [groosha@main 01_quickstart]$ pip install -r requirements.txt 
 # ...здесь куча строк про установку...
@@ -157,7 +157,7 @@ async def cmd_test2(message: types.Message):
 ```
 
 Давайте запустим с ним бота:  
-![Команда /test2 не работает](../images/quickstart/l01_1.jpg)
+![Команда /test2 не работает](images/quickstart/l01_1.jpg)
 
 Хэндлер `cmd_test2` не сработает, т.к. диспетчер о нём не знает. Исправим эту ошибку 
 и отдельно зарегистрируем функцию:
@@ -171,7 +171,7 @@ dp.message.register(cmd_test2, Command("test2"))
 ```
 
 Снова запустим бота:  
-![Обе команды работают](../images/quickstart/l01_2.jpg)
+![Обе команды работают](images/quickstart/l01_2.jpg)
 
 ## Синтаксический сахар {: id="sugar" }
 
@@ -190,7 +190,7 @@ async def cmd_answer(message: types.Message):
 async def cmd_reply(message: types.Message):
     await message.reply('Это ответ с "ответом"')
 ```
-![Разница между message.answer() и message.reply()](../images/quickstart/l01_3.jpg)
+![Разница между message.answer() и message.reply()](images/quickstart/l01_3.jpg)
 
 Более того, для большинства типов сообщений есть вспомогательные методы вида 
 "answer_{type}" или "reply_{type}", например:
@@ -226,13 +226,27 @@ async def cmd_dice(message: types.Message, bot: Bot):
 
 ## Передача доп. параметров {: id="pass-extras" }
 
-Иногда при запуске бота может потребоваться передать одно или несколько дополнительных значений. Это может быть 
-объект конфигурации, список администраторов группы, отметка времени и что угодно ещё. Для этого достаточно передать 
-параметры как дополнительные именованные (!) аргументы функции `start_polling(...)` (для вебхуков есть аналогичный 
-способ). В хэндлерах для получения этих значений достаточно указать их как те же аргументы. Более того, изменение таких 
-объектов в одних хэндлерах влияют на их содержимое в других. Рассмотрим на примере:
+Иногда при запуске бота может потребоваться передать одно или несколько дополнительных значений. 
+Это может быть какая-нибудь переменная, объект конфигурации, список чего-то, отметка времени и что угодно ещё. 
+Для этого достаточно передать эти данные как именованные (kwargs) аргументы в диспетчер, либо присвоить значения, как 
+если бы вы работали со словарём.
+
+Такая возможность лучше всего подходит для передачи объектов, которые должны жить в единственном экземпляре и не меняться 
+в ходе работы бота (т.е. быть только для чтения). Если предполагается, что значение должно изменяться со временем, то помните, что 
+это сработает только с [мутабельными объектами](https://mathspp.com/blog/pydonts/pass-by-value-reference-and-assignment). 
+Чтобы получить значения в хэндлерах, просто укажите их как аргументы. Рассмотрим на примере:
 
 ```python
+# Где-то в другом месте
+# Например, в точке входа в приложение
+from datetime import datetime
+
+# bot = ...
+dp = Dispatcher()
+dp["started_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+await dp.start_polling(bot, mylist=[1, 2, 3])
+
+
 @dp.message(Command("add_to_list"))
 async def cmd_add_to_list(message: types.Message, mylist: list[int]):
     mylist.append(7)
@@ -242,13 +256,18 @@ async def cmd_add_to_list(message: types.Message, mylist: list[int]):
 @dp.message(Command("show_list"))
 async def cmd_show_list(message: types.Message, mylist: list[int]):
     await message.answer(f"Ваш список: {mylist}")
+
+    
+@dp.message(Command("info"))
+async def cmd_info(message: types.Message, started_at: str):
+    await message.answer(f"Бот запущен {started_at}")
 ```
 
-Теперь список `mylist` можно читать и писать в разных хэндлерах. Существует также ещё один вариант, более подходящий 
-в других ситуациях. Речь, конечно же, о мидлварях, про которые подробно рассказывается 
-[в соответствующей главе](filters-and-middlewares.md).
+Теперь переменную `started_at` и список `mylist` можно читать и писать в разных хэндлерах. А если вам нужно пробрасывать 
+уникальные для каждого апдейта значения (например, объект сессии СУБД), 
+то ознакомьтесь с [мидлварями](filters-and-middlewares.md#middlewares).
 
-![Аргумент mylist может быть изменён между вызовами](../images/quickstart/extra-args.png)
+![Аргумент mylist может быть изменён между вызовами](images/quickstart/extra-args.png)
 
 ## Файлы конфигурации
 
@@ -260,7 +279,8 @@ async def cmd_show_list(message: types.Message, mylist: list[int]):
 Итак, создадим рядом с `bot.py` отдельный файл `config_reader.py` со следующим содержимым
 
 ```python title="config_reader.py"
-from pydantic import BaseSettings, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 
 
 class Settings(BaseSettings):
@@ -268,13 +288,11 @@ class Settings(BaseSettings):
     # для конфиденциальных данных, например, токена бота
     bot_token: SecretStr
 
-    # Вложенный класс с дополнительными указаниями для настроек
-    class Config:
-        # Имя файла, откуда будут прочитаны данные 
-        # (относительно текущей рабочей директории)
-        env_file = '.env'
-        # Кодировка читаемого файла
-        env_file_encoding = 'utf-8'
+    # Начиная со второй версии pydantic, настройки класса настроек задаются
+    # через model_config
+    # В данном случае будет использоваться файла .env, который будет прочитан
+    # с кодировкой UTF-8
+    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
 
 # При импорте файла сразу создастся 

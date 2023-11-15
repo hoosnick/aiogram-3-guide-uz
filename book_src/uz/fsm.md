@@ -6,7 +6,7 @@ description: Конечные автоматы (FSM)
 # Конечные автоматы (FSM) {: id="fsm-start" }
 
 !!! info ""
-    Используемая версия aiogram: 3.0 RC 1
+    Используемая версия aiogram: 3.1.1
 
 ## Теория {: id="theory" }
 
@@ -18,7 +18,7 @@ description: Конечные автоматы (FSM)
 юзера, далее на каждом этапе проверяет вводимые данные, а по команде `/cancel` прекращает ожидать очередной шаг и 
 возвращается в основной режим. Взгляните на схему ниже:
 
-![Процесс, состоящий из трёх этапов](../images/fsm/l04_1.uz.svg)
+![Процесс, состоящий из трёх этапов](images/fsm/l04_1.uz.svg)
 
 **Зелёной** стрелкой обозначен процесс перехода по шагам без ошибок, **синие** стрелки означают сохранение текущего состояния и 
 ожидание повторного ввода (например, если юзер указал, что ему 250 лет, следует запросить возраст заново), а **красные** 
@@ -95,13 +95,13 @@ class OrderFood(StatesGroup):
     choosing_food_size = State()
 ```
 
-Напишем обработчик первого шага, реагирующий на команду `/food`:
+Напишем обработчик первого шага, реагирующий на команду `/food` в случае, если у пользователя не установлен никакой стейт:
 
 ```python hl_lines="4 10"
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 
-@router.message(Command("food"))
+@router.message(StateFilter(None), Command("food"))
 async def cmd_food(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите блюдо:",
@@ -210,7 +210,7 @@ class FSMContext:
 
 ```python title="handlers/ordering_food.py"
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
@@ -252,7 +252,10 @@ async def food_chosen(message: Message, state: FSMContext):
     await state.set_state(OrderFood.choosing_food_size)
 
 
-@router.message(OrderFood.choosing_food_name)
+# В целом, никто не мешает указывать стейты полностью строками
+# Это может пригодиться, если по какой-то причине 
+# ваши названия стейтов генерируются в рантайме (но зачем?)
+@router.message(StateFilter("OrderFood:choosing_food_name"))
 async def food_chosen_incorrectly(message: Message):
     await message.answer(
         text="Я не знаю такого блюда.\n\n"
@@ -287,13 +290,17 @@ async def food_size_chosen_incorrectly(message: Message):
 ### Общие команды {: id="common-commands" }
 
 Раз уж заговорили о сбросе состояний, давайте в файле `handlers/common.py` реализуем обработчики команды `/start` и 
-действия «отмены». Первая должна показывать некий приветственный/справочный текст, а вторая просто пишет "действие отменено". 
-Обе функции сбрасывают состояние и данные, и убирают обычную клавиатуру, если вдруг она есть:
+действия «отмены». В первом случае должен показываться некий приветственный/справочный текст, а для отмены напишем 
+два хэндлера: когда пользователь не находится ни в каком стейте, и когда находится в каком-либо.
+
+Все функции гарантируют отсутствие состояние и данных, убирают обычную клавиатуру, если вдруг она есть:
 
 ```python title="handlers/common.py"
 from aiogram import F, Router
 from aiogram.filters import Command
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import default_state
 from aiogram.types import Message, ReplyKeyboardRemove
 
 router = Router()
@@ -305,6 +312,21 @@ async def cmd_start(message: Message, state: FSMContext):
     await message.answer(
         text="Выберите, что хотите заказать: "
              "блюда (/food) или напитки (/drinks).",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+
+# Нетрудно догадаться, что следующие два хэндлера можно 
+# спокойно объединить в один, но для полноты картины оставим так
+
+# default_state - это то же самое, что и StateFilter(None)
+@router.message(StateFilter(None), Command(commands=["cancel"]))
+@router.message(default_state, F.text.lower() == "отмена")
+async def cmd_cancel_no_state(message: Message, state: FSMContext):
+    # Стейт сбрасывать не нужно, удалим только данные
+    await state.set_data({})
+    await message.answer(
+        text="Нечего отменять",
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -391,7 +413,7 @@ async def main():
 
 После запуска бота попросим людей в группе повзаимодействовать с ним:
 
-![Все пользователи для бота на одно лицо](../images/fsm/fsm_chat_strategy.png)
+![Все пользователи для бота на одно лицо](images/fsm/fsm_chat_strategy.png)
 
 Выглядит странно, не правда ли?
 
