@@ -1,5 +1,5 @@
 # Project information
-site_name: Пишем Telegram-ботов с aiogram 3.x (β)
+site_name: Пишем Telegram-ботов с aiogram 3.x
 site_description: Учебник по разработке ботов для Telegram на языке Python при помощи фреймворка aiogram 3.x
 site_author: MasterGroosha
 site_url: https://mastergroosha.github.io/aiogram-3-guide
@@ -37,8 +37,6 @@ theme:
     code: Roboto Mono
   icon:
     logo: material/robot
-#  features:
-#    - navigation.expand
 
 # Extras
 extra:
@@ -60,60 +58,60 @@ markdown_extensions:
   - toc:
       permalink: true
 
+# Navigation
 nav:
-  - 'home': index.md
-  - 'quickstart': quickstart.md
-  - 'messages': messages.md
-  - 'buttons': buttons.md
-  - 'routers': routers.md
-  - 'filters_and_middlewares': filters-and-middlewares.md
-  - 'special_updates': special-updates.md
-  - 'fsm': fsm.md
-  - 'inline_mode': inline_mode.md
+  - "home": index.md
+  - "quickstart": quickstart.md
+  - "messages": messages.md
+  - "buttons": buttons.md
+  - "routers": routers.md
+  - "filters_and_middlewares": filters-and-middlewares.md
+  - "special_updates": special-updates.md
+  - "fsm": fsm.md
+  - "inline_mode": inline-mode.md
 
-
+# Plugins
 plugins:
   - mkdocs-video:
       is_video: True
-      video_autoplay: True
+      video_autoplay: False
       video_type: mp4
       css_style:
         width: "100%"
         height: "100%"
-  - search:
+  - search
   - i18n:
-      default_language: ru
-      default_language_only: false
       docs_structure: folder
+      reconfigure_search: true
       languages:
-        ru:
-          name: '<img style="height: 10px; border: 0px;" alt="ru" src="https://flagicons.lipis.dev/flags/4x3/ru.svg" title="russian" /> Русский'
+        - locale: ru
+          default: true
+          name: "<img style='height: 10px; border: 0px;' alt='ru' src='https://flagicons.lipis.dev/flags/4x3/ru.svg' title='russian' /> Русский"
           build: true
-        uz:
+          nav_translations:
+            "home": "Введение"
+            "quickstart": "Знакомство с aiogram"
+            "messages": "Работа с сообщениями"
+            "buttons": "Кнопки"
+            "routers": "Роутеры. Структура"
+            "filters_and_middlewares": "Фильтры и мидлвари"
+            "special_updates": "Особые апдейты"
+            "fsm": "Конечные автоматы"
+            "inline_mode": "Инлайн-режим"
+        - locale: uz
           name: "<img style='height: 10px; border: 0px;' alt='uz' src='https://flagicons.lipis.dev/flags/4x3/uz.svg' title='uzbek' /> O'zbekcha"
           build: true
-          site_name: "Aiogram 3.xda Telegram botlar yozamiz (β)"
-      nav_translations:
-        ru:
-          "home": "Введение"
-          "quickstart": "Знакомство с aiogram"
-          "messages": "Работа с сообщениями"
-          "buttons": "Кнопки"
-          "routers": "Роутеры. Структура"
-          "filters_and_middlewares": "Фильтры и мидлвари"
-          "special_updates": "Особые апдейты"
-          "fsm": "Конечные автоматы"
-          "inline_mode": "Инлайн-режим"
-        uz:
-          "home": "Kirish"
-          "quickstart": "Aiogram bilan tanishuv"
-          "messages": "Xabarlar bilan ishlash"
-          "buttons": "Tugmalar"
-          "routers": "Routerlar. Struktura"
-          "filters_and_middlewares": "Filtrlar va middlewarelar"
-          "special_updates": "Maxsus yangilanishlar"
-          "fsm": "FSM (Steytlar)"
-          "inline_mode": "Inlayn-mode"
+          site_name: "Aiogram 3.xda Telegram botlar yozamiz"
+          nav_translations:
+            "home": "Kirish"
+            "quickstart": "Aiogram bilan tanishuv"
+            "messages": "Xabarlar bilan ishlash"
+            "buttons": "Tugmalar"
+            "routers": "Routerlar. Struktura"
+            "filters_and_middlewares": "Filtrlar va middlewarelar"
+            "special_updates": "Maxsus yangilanishlar"
+            "fsm": "FSM (Steytlar)"
+            "inline_mode": "Inlayn-mode"
 
 # Custom
 nav_name:
